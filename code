@@ -1,0 +1,54 @@
+Public Function FileExist(FilePath As String) As Boolean
+    On Error GoTo Çikis
+    If Not Dir(FilePath, vbDirectory) = vbNullString Then FileExist = True
+    
+Exit:
+    On Error GoTo 0
+End Function
+
+'If there is a difference in your worksheet,it works
+Private Sub Worksheet_Change(ByVal Target As Range)
+
+'if it control that The difference is in b column , else exit
+If Intersect(Target, [b:b]) Is Nothing Then Exit Sub
+
+'If there exist error , go to exit label
+On Error GoTo Exit:
+
+' Clear setuped images
+ActiveSheet.DrawingObjects.Delete
+ActiveSheet.Shapes.SelectAll
+    Selection.Placement = xlMoveAndSize
+
+Dim Imagepath As String
+Dim Image As Object
+
+'In column b, the given range is controlled and assigned to cell
+For i = 2 To 1000
+    'It takes path info of active sheet, It adds id of selected image
+    Imagepath = ActiveWorkbook.Path & "\" & Range("b" & i) & ".jpg"
+
+    'If there no exist , it controls that due to no error
+    If FileExist(Imagepath) Then
+         Imagepath = ActiveWorkbook.Path & "\" & Range("b" & i) & ".jpg"
+        Else
+           Imagepath = ActiveWorkbook.Path & "\noimage.jpg"
+        End If
+        
+    'It creates image.
+     Set Resim = ActiveSheet.Pictures.Insert(Imagepath)
+     'It set the size of image
+     With Range("a" & i)
+     Resim.Top = .Top
+     Resim.Left = .Left
+     Resim.Height = .Height
+     Resim.Width = .Width
+     End With
+
+Next i
+'When you do filter,it satisfy image able to move
+ActiveSheet.Shapes.SelectAll
+    Selection.Placement = xlMoveAndSize
+Exit:
+
+End Sub
